@@ -59,6 +59,7 @@
             pkgs.nodejs_24
             pkgs.git
             pkgs.azure-cli
+            pkgs.worktrunk
           ];
           shellHook = ''
             if [[ -f "$PWD/src/index.ts" && -f "$PWD/package.json" ]] &&
@@ -66,6 +67,10 @@
               export HUNK_ADO_EXTENSION_PATH="$PWD"
             else
               export HUNK_ADO_EXTENSION_PATH="${extensionPath}"
+            fi
+            # Session-local integration only; never edit the user's shell config.
+            if [[ $- == *i* ]]; then
+              eval "$(${lib.getExe pkgs.worktrunk} config shell init bash)"
             fi
           '';
         };
@@ -88,6 +93,15 @@
         devShells.default = devShell;
         inherit devShell; # Keep the existing direnv/legacy devShell entry point.
         formatter = pkgs.nixfmt;
+        checks.worktree-script =
+          pkgs.runCommand "hunk-ado-worktree-script"
+            {
+              nativeBuildInputs = [ pkgs.shellcheck ];
+            }
+            ''
+              shellcheck ${./scripts/worktree.sh}
+              touch "$out"
+            '';
         checks.extension-load =
           pkgs.runCommand "hunk-ado-extension-load"
             {

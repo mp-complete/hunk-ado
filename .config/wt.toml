@@ -1,0 +1,23 @@
+# Worktrunk >= 0.80. Project commands require the user's approval.
+# pre-start blocks --execute, so Pi never races the dependency installation.
+[pre-start]
+dependencies = "nix develop --command npm ci --include=dev --ignore-scripts --legacy-peer-deps"
+
+# Sequential stages: reinstall AFTER a merge rebase may have changed the lockfile,
+# then run independent checks concurrently. A failing stage stops the merge.
+[[pre-merge]]
+dependencies = "nix develop --command npm ci --include=dev --ignore-scripts --legacy-peer-deps"
+
+[[pre-merge]]
+tests = "nix develop --command npm run check"
+nix = "nix flake check"
+
+[aliases]
+# --name binds the destination; arguments after -- are passed to Pi.
+# Do not use {{ branch }} for the destination: that means the invoking branch.
+new-pi = "wt switch --create {{ name }} --base {{ default_branch }} --execute nix -- develop --command pi {{ args }}"
+pi = "wt switch {{ name | default('@') }} --execute nix -- develop --command pi {{ args }}"
+
+# Aliases retain the terminal; lifecycle hooks receive JSON stdin instead.
+review = "nix develop --command bash scripts/worktree.sh review {{ target | default(default_branch) }} {{ args }}"
+finish = "nix develop --command bash scripts/worktree.sh finish {{ target | default(default_branch) }} {{ args }}"

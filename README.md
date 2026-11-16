@@ -119,6 +119,22 @@ The displayed patch is an immutable snapshot. Hunk reloads reread it, **not** a 
 - Local Git configuration and inherited Git routing/config variables are ignored for acquisition. Nonstandard proxies, custom credential helpers, private CAs, and corporate Git-specific settings may need separate integration; TLS verification is never disabled.
 - Validated on Linux/WSL. Other platforms and live tenant-specific ADO behavior still need verification.
 
+## Worktree workflows
+
+Worktrunk installs dependencies when creating worktrees and runs tests before merging. The Nix dev shell includes Worktrunk and session-local Bash integration.
+
+```sh
+nix develop
+wt new-pi --name=feat/publish-comments  # create, install dependencies, open Pi
+wt pi                                # open Pi in the current worktree
+wt review                            # review all branch/worktree changes in Hunk
+wt finish                            # review committed changes, confirm, test, merge locally
+```
+
+Pi uses your existing installation and authentication. Approve the project hooks when prompted; declining approval can skip checks rather than block the operation. `finish` requires a clean committed branch and never treats closing Hunk as merge approval. It does not push automatically.
+
+See [the workflow guide](docs/worktrees.md) for prompts, targets, hook behavior, safe finishing, and dry-run previews.
+
 ## Development and validation
 
 ```sh
