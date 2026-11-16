@@ -1,0 +1,36 @@
+{
+  "name": "hunk-ado",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open Azure DevOps pull requests in Hunk without changing your checkout",
+  "type": "module",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "hunk",
+    "hunk-extension",
+    "azure-devops",
+    "pull-request"
+  ],
+  "hunk": {
+    "apiVersion": 33,
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "hunkdiff": "0.25.0",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
