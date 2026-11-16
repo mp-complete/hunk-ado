@@ -13,18 +13,18 @@ The interactive Nix Bash shell initializes Worktrunk's directory-switching integ
 ## Start a worktree in Pi
 
 ```sh
-wt new-pi --name=feat/publish-comments
+wt new-pi feat/publish-comments
 ```
 
 Or supply a startup prompt:
 
 ```sh
-wt new-pi --name=feat/publish-comments -- 'Implement explicit publishing of Hunk review notes to ADO.'
+wt new-pi feat/publish-comments -- 'Implement explicit publishing of Hunk review notes to ADO.'
 ```
 
 This creates the branch from the repository's **local default branch**, creates its worktree at your configured Worktrunk location, installs locked dependencies, then launches Pi in the new worktree inside `nix develop`. It does not fetch or update main first.
 
-Arguments after `--` are forwarded to Pi. `--name` must precede that separator. To just create/switch without launching Pi, use the normal `wt switch --create BRANCH` command.
+The first positional argument is the new branch name; remaining arguments are forwarded to Pi. The explicit form `wt new-pi --name=feat/publish-comments` also works; in that form, all positional arguments go to Pi. Put `--name` before any `--` separator. Calling `wt new-pi` without a name prints usage and does not create a worktree. To just create/switch without launching Pi, use the normal `wt switch --create BRANCH` command.
 
 ### Open an existing worktree
 
@@ -103,7 +103,7 @@ Use `wt finish --target=OTHER_LOCAL_BRANCH` for a different target. Flags after 
 ```sh
 wt hook pre-start --dry-run
 wt hook pre-merge --dry-run
-wt config alias dry-run new-pi -- --name=feat/publish-comments 'Startup prompt'
+wt config alias dry-run new-pi -- feat/publish-comments 'Startup prompt'
 wt config alias dry-run pi -- --name=feat/publish-comments
 wt config alias dry-run review
 wt config alias dry-run finish

@@ -125,7 +125,7 @@ Worktrunk installs dependencies when creating worktrees and runs tests before me
 
 ```sh
 nix develop
-wt new-pi --name=feat/publish-comments  # create, install dependencies, open Pi
+wt new-pi feat/publish-comments        # create, install dependencies, open Pi
 wt pi                                # open Pi in the current worktree
 wt review                            # review all branch/worktree changes in Hunk
 wt finish                            # review committed changes, confirm, test, merge locally

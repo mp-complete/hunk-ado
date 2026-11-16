@@ -155,6 +155,38 @@ if [[ "$*" == *"npm run check"* && "\${FAIL_TESTS:-0}" == 1 ]]; then exit 22; fi
     assert.equal(f.git("rev-parse", "main"), f.git("rev-parse", "feature"));
   });
 
+test("new-pi accepts a positional branch and preserves quoted Pi arguments",
+  { skip: !hasWorktrunk }, async (t) => {
+    const f = await fixture(t);
+    await mkdir(join(f.repo, ".config"));
+    await writeFile(join(f.repo, ".config/wt.toml"), await readFile(config));
+    for (const selector of ["feat/commit-comments", "--name=feat/commit-comments"]) {
+      const preview = spawnSync("wt", ["config", "alias", "dry-run", "new-pi", "--",
+        selector, "A prompt; not a shell command", "--model", "some-model"], {
+        cwd: f.repo, env: f.env, encoding: "utf8",
+      });
+      assert.equal(preview.status, 0, preview.stdout + preview.stderr);
+      assert.match(preview.stdout + preview.stderr,
+        /wt switch --create feat\/commit-comments --base main --execute nix/);
+      assert.match(preview.stdout + preview.stderr,
+        /pi 'A prompt; not a shell command' --model some-model/);
+    }
+  });
+
+test("new-pi with no branch prints usage without creating a worktree",
+  { skip: !hasWorktrunk }, async (t) => {
+    const f = await fixture(t);
+    await mkdir(join(f.repo, ".config"));
+    await writeFile(join(f.repo, ".config/wt.toml"), await readFile(config));
+    const before = f.git("worktree", "list", "--porcelain");
+    // Approve only the disposable fixture's known alias, not real project approvals.
+    const result = spawnSync("wt", ["-y", "new-pi"], { cwd: f.repo, env: f.env, encoding: "utf8" });
+    assert.match(result.stdout + result.stderr, /Usage: wt new-pi/);
+    assert.doesNotMatch(result.stdout + result.stderr, /undefined (variable|value)/);
+    assert.notEqual(result.status, 0);
+    assert.equal(f.git("worktree", "list", "--porcelain"), before);
+  });
+
 test("Worktrunk validates aliases and runs hook dependency stages before checks",
   { skip: !hasWorktrunk }, async (t) => {
     const f = await fixture(t);
